@@ -1,0 +1,37 @@
+name: Build Lastica Movies APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'LasticaMovies-Android-Project.zip'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Extract project
+        run: |
+          unzip -o LasticaMovies-Android-Project.zip -d extracted
+
+      - name: Build APK
+        run: |
+          cd extracted/LasticaMovies
+          gradle assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LasticaMovies-APK
+          path: extracted/LasticaMovies/app/build/outputs/apk/debug/*.apk
